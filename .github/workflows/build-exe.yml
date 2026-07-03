@@ -1,4 +1,4 @@
-name: Build EXE
+name: Build
 
 on:
   push:
@@ -7,9 +7,33 @@ on:
     branches: [master]
 
 jobs:
-  build:
-    runs-on: windows-latest
+  build-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen-cli
+        run: cargo install wasm-bindgen-cli --version 0.2.126
+
+      - name: Build WASM package
+        run: |
+          cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release
+          wasm-bindgen rust-fuzzy/target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-package
+          path: rust-fuzzy/pkg
+
+  build-exe:
+    needs: build-wasm
+    runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -19,25 +43,27 @@ jobs:
           node-version: 18
 
       - name: Setup Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-          override: true
+          targets: wasm32-unknown-unknown
 
       - name: Install wasm-bindgen-cli
         run: cargo install wasm-bindgen-cli --version 0.2.126
+
+      - name: Download WASM artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: wasm-package
+          path: rust-fuzzy/pkg
 
       - name: Install Dependencies
         run: npm ci
 
       - name: Build WASM package
-        run: |
-          npm run wasm:build
+        run: npm run wasm:build
 
       - name: Build Windows EXE
-        run: |
-          npx electron-builder --win --x64
+        run: npx electron-builder --win --x64
 
       - name: Upload EXE Artifacts
         uses: actions/upload-artifact@v4
