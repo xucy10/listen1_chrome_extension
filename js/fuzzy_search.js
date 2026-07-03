@@ -24,6 +24,7 @@ function createFallbackSearch() {
 async function initFuzzySearch() {
   window.fuzzySearch = createFallbackSearch();
   try {
+    // eslint-disable-next-line import/no-unresolved, import/extensions
     const module = await import('../rust-fuzzy/pkg/fuzzy_search.js');
     if (module && typeof module.contains_fuzzy === 'function') {
       window.fuzzySearch = {
@@ -42,7 +43,7 @@ async function initFuzzySearch() {
       };
     }
   } catch (error) {
-    console.warn('WASM fuzzy search unavailable, falling back to JS search', error);
+    // Fallback to JS search when wasm package is unavailable.
   }
 }
 
