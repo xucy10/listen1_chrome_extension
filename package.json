@@ -5,7 +5,7 @@
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "wasm:build": "cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web",
+    "wasm:build": "cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen rust-fuzzy/target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web",
     "desktop:start": "electron .",
     "desktop:build": "electron-builder --win --x64",
     "desktop:build:portable": "electron-builder --win --x64 --portable"
@@ -24,7 +24,17 @@
     "productName": "Listen1",
     "files": [
       "**/*",
-      "!*.log"
+      "!*.log",
+      "node_modules/@electron/remote/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "rust-fuzzy/pkg",
+        "to": "rust-fuzzy/pkg"
+      }
+    ],
+    "asarUnpack": [
+      "node_modules/@electron/remote/**/*"
     ],
     "directories": {
       "buildResources": "build"
