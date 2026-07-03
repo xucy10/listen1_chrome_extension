@@ -2,10 +2,13 @@
   "name": "listen1_chrome_extension",
   "version": "2.33.0",
   "description": "one for all free music in china",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "wasm:build": "cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web"
+    "wasm:build": "cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web",
+    "desktop:start": "electron .",
+    "desktop:build": "electron-builder --win --x64",
+    "desktop:build:portable": "electron-builder --win --x64 --portable"
   },
   "repository": {
     "type": "git",
@@ -16,8 +19,31 @@
   "bugs": {
     "url": "https://github.com/listen1/listen1_chrome_extension/issues"
   },
+  "build": {
+    "appId": "com.listen1.desktop",
+    "productName": "Listen1",
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "!*.log"
+    ],
+    "directories": {
+      "buildResources": "build"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    }
+  },
   "homepage": "https://github.com/listen1/listen1_chrome_extension#readme",
   "devDependencies": {
+    "electron": "^26.0.0",
+    "electron-builder": "^24.9.0",
+    "music-metadata": "^7.14.0",
     "eslint": "^7.30.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^8.3.0",
