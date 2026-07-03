@@ -1,0 +1,31 @@
+name: Build Wasm
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Rust
+        uses: actions/setup-rust@v1
+        with:
+          rust-version: stable
+      - name: Install wasm32 target
+        run: rustup target add wasm32-unknown-unknown
+      - name: Install wasm-bindgen-cli
+        run: cargo install wasm-bindgen-cli --version 0.2.80
+      - name: Build WASM package
+        run: |
+          cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release
+          wasm-bindgen target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web
+      - name: Upload wasm artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-package
+          path: rust-fuzzy/pkg

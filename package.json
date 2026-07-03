@@ -4,7 +4,8 @@
   "description": "one for all free music in china",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "wasm:build": "cargo build --manifest-path rust-fuzzy/Cargo.toml --target wasm32-unknown-unknown --release && wasm-bindgen target/wasm32-unknown-unknown/release/fuzzy_search.wasm --out-dir rust-fuzzy/pkg --target web"
   },
   "repository": {
     "type": "git",

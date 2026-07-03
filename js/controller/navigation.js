@@ -326,13 +326,28 @@ angular.module('listenone').controller('NavigationController', [
       $scope.playlistFilter.key = '';
     };
     $scope.fieldFilter = (song) => {
-      if ($scope.playlistFilter.key === '') {
+      const keyword = $scope.playlistFilter.key;
+      if (!keyword) {
         return true;
       }
+
+      const contains = (text) => {
+        if (!text) {
+          return false;
+        }
+        if (
+          window.fuzzySearch &&
+          typeof window.fuzzySearch.containsSync === 'function'
+        ) {
+          return window.fuzzySearch.containsSync(text, keyword);
+        }
+        return text.toLowerCase().includes(keyword.toLowerCase());
+      };
+
       return (
-        song.title.includes($scope.playlistFilter.key) ||
-        song.artist.includes($scope.playlistFilter.key) ||
-        (song.album && song.album.includes($scope.playlistFilter.key))
+        contains(song.title) ||
+        contains(song.artist) ||
+        contains(song.album)
       );
     };
     $scope.onPlaylistSongDrop = (list_id, song, data, dataType, direction) => {
